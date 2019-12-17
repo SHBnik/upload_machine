@@ -84,7 +84,7 @@ def mainboard_page(event):
 def bride_page(event):
   clear_page()
   page.create_text(400,250,fill="darkblue",text="Uploading")
-  upload_arduino_code('bride')
+  threading.Thread(target=upload_arduino_code, args=('bride',)).start
 
 
 
@@ -106,6 +106,8 @@ def bride_page(event):
 def upload_arduino_code(machine):
   try:
     port = [tuple(p) for p in list(serial.tools.list_ports.comports())][0][0]
+    if(port.find('AMA') != -1):
+      raise Exception('no port found')
     os.system('/usr/share/arduino/hardware/tools/avrdude -C/usr/share/arduino/hardware/tools/avrdude.conf -v -v -v -v -patmega2560 -cwiring -P'
       +str(port)+' -b115200 -D -Uflash:w:'
       +str(hex_address[machine])+':i')
