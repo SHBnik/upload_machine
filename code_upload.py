@@ -131,8 +131,9 @@ def message_box_handler():
     msg_box = create_msg_box(uploading_image)
     upload_busy = None
   elif upload_busy == False:
+    destroy_msgbox(msg_box,0)
     msg_box = create_msg_box(uploaddone_image)
-    destroy_msgbox(msg_box,5)  
+    destroy_msgbox(msg_box,5)
     upload_busy = None
   elif upload_busy == None:
     pass
@@ -149,7 +150,7 @@ def upload_cmd(port,machine):
   os.system('/usr/share/arduino/hardware/tools/avrdude -C/usr/share/arduino/hardware/tools/avrdude.conf -v -v -v -v -patmega2560 -cwiring -P'
   +str(port)+' -b115200 -D -Uflash:w:'
   +str(hex_address[machine])+':i')
-
+ 
   upload_busy = False
 
 
@@ -157,19 +158,14 @@ def upload_arduino_code(machine):
   try:
     
     port = [tuple(p) for p in list(serial.tools.list_ports.comports())][0][0]
-    
+ 
     if(port.find('AMA') != -1):
       raise 'no port found'
     
-    # show uploading message
     
     threading.Thread(target=upload_cmd, args=(port,machine,)).start()
     
-    # destrou uploading message
-    # destroy_msgbox(message_box,0)
-
-  
-  
+ 
   except Exception as e:
     print('error in upload arduino',e)
 
@@ -222,6 +218,7 @@ if __name__ == '__main__':
   page.pack()
   page.place(x=-1,y=-1)
   
+  message_box_handler()
   
   main_page(None)
 
