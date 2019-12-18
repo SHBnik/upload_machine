@@ -18,6 +18,9 @@ hex_address = {
 }
 
 
+
+upload_busy = None
+
 def load_all_images(size_x,size_y):
   global lcd_image,mainboard_image,bride_image
 
@@ -48,6 +51,33 @@ def create_btn(image,pos_x,pos_y,function):
 def clear_page():
   page.delete("all")
   page.create_image(0, 0,anchor=NW, image=background_image)
+
+
+
+
+
+
+
+
+
+
+def create_msg_box(image):
+  message_box = Canvas(tk,width=screen_width/3, height=screen_height/3)
+  message_box.pack()
+  message_box.place(x=(screen_width/2-screen_width/6),y=(screen_height/2-screen_height/6))
+  message_box.create_image(0, 0,anchor=NW, image=image)
+  return message_box
+
+def _destroy_msgbox(msg_box):
+  msg_box.destroy()
+
+def destroy_msgbox(msg_box,time):
+  threading.Timer(time, _destroy_msgbox,args=(msg_box,)).start()
+
+
+
+
+
 
 
 
@@ -94,28 +124,33 @@ def bride_page(event):
 
 
 
+msg_box = None
+def message_box_handler():
+  global upload_busy,msg_box
+  if upload_busy == True:
+    msg_box = create_msg_box(uploading_image)
+    upload_busy = None
+  elif upload_busy == False:
+    msg_box = create_msg_box(uploaddone_image)
+    destroy_msgbox(msg_box,5)  
+    upload_busy = None
+  elif upload_busy == None:
+    pass
 
+  threading.Timer(0.5, message_box_handler).start()
 
-
-
-def create_msg_box(image):
-  message_box = Canvas(tk,width=screen_width/3, height=screen_height/3)
-  message_box.pack()
-  message_box.place(x=(screen_width/2-screen_width/6),y=(screen_height/2-screen_height/6))
-  message_box.create_image(0, 0,anchor=NW, image=image)
-  return message_box
-
-def _destroy_msgbox(msg_box):
-  msg_box.destroy()
-
-def destroy_msgbox(msg_box,time):
-  threading.Timer(time, _destroy_msgbox,args=(msg_box,)).start()
 
 
 def upload_cmd(port,machine):
+  global upload_busy
+  
+  upload_busy = True
+
   os.system('/usr/share/arduino/hardware/tools/avrdude -C/usr/share/arduino/hardware/tools/avrdude.conf -v -v -v -v -patmega2560 -cwiring -P'
   +str(port)+' -b115200 -D -Uflash:w:'
   +str(hex_address[machine])+':i')
+
+  upload_busy = False
 
 
 def upload_arduino_code(machine):
@@ -127,16 +162,13 @@ def upload_arduino_code(machine):
       raise 'no port found'
     
     # show uploading message
-    message_box = create_msg_box(uploading_image)
     
-    x = threading.Thread(target=upload_cmd, args=(port,machine,))
-    x.start()
+    threading.Thread(target=upload_cmd, args=(port,machine,)).start()
     
     # destrou uploading message
     # destroy_msgbox(message_box,0)
 
-    message_box = create_msg_box(uploaddone_image)
-    destroy_msgbox(message_box,3)    
+  
   
   except Exception as e:
     print('error in upload arduino',e)
