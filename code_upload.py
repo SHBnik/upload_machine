@@ -20,9 +20,16 @@ hex_address = {
 
 
 upload_busy = None
+button_images = []
+
+
+def load_folder_image(size_x,size_y,_path):
+  image = ImageTk.PhotoImage(Image.open(_path)
+    .resize((size_x, size_y),Image.ANTIALIAS))
+  return image
 
 def load_all_images(size_x,size_y):
-  global lcd_image,mainboard_image,bride_image
+  global lcd_image,mainboard_image
 
   lcd_image = ImageTk.PhotoImage(Image.open(str(path + '/images/lcd.png'))
     .resize((size_x, size_y),Image.ANTIALIAS))
@@ -31,8 +38,8 @@ def load_all_images(size_x,size_y):
     .resize((size_x, size_y),Image.ANTIALIAS))
 
 
-  bride_image = ImageTk.PhotoImage(Image.open(str(path + '/images/bride.png'))
-    .resize((size_x, size_y),Image.ANTIALIAS))
+  # bride_image = ImageTk.PhotoImage(Image.open(str(path + '/images/bride.png'))
+  #   .resize((size_x, size_y),Image.ANTIALIAS))
 
 
 
@@ -44,9 +51,9 @@ def on_closing():
 
 
 
-def create_btn(image,pos_x,pos_y,function):
+def create_btn(image,pos_x,pos_y,function,_arg):
   btn = page.create_image(pos_x, pos_y, image=image, anchor=NW)
-  page.tag_bind(btn, "<Button-1>", function)
+  page.tag_bind(btn, "<Button-1>", lambda event, arg=_arg: function(event, arg))
 
 def clear_page():
   page.delete("all")
@@ -75,6 +82,12 @@ def destroy_msgbox(msg_box,time):
   threading.Timer(time, _destroy_msgbox,args=(msg_box,)).start()
 
 
+def create_note_box(note):
+  note_box = Canvas(tk,width=screen_width/2, height=screen_height/2)
+  note_box.pack()
+  note_box.place(x=10,y=10)
+  note_box.create_text(10,10,anchor=NW,text=note)
+  return note_box
 
 
 
@@ -88,11 +101,10 @@ def destroy_msgbox(msg_box,time):
 
 
 
-
-def main_page(event):
+def main_page(event,tmp):
   clear_page()
-  create_btn(lcd_image,100,100,lcd_page)
-  create_btn(mainboard_image,400,100,mainboard_page)
+  create_btn(lcd_image,100,100,lcd_page,None)
+  create_btn(mainboard_image,400,100,mainboard_page,None)
 
 
 
@@ -101,20 +113,44 @@ def main_page(event):
 
 
 
-def lcd_page(event):
+def lcd_page(event,tmp):
   clear_page()
 
 
-def mainboard_page(event):
+def mainboard_page(event,tmp):
+  global button_images
+  clear_page() 
+  button_images = []
+  subfolders = list(filter(lambda x: os.path.isdir(os.path.join(str(path+'/mainboards'), x)), os.listdir(str(path+'/mainboards'))))   
+  print('this folders found',subfolders)
+  for count,folder in enumerate(subfolders):
+    button_images.append( load_folder_image(250,250,str(path+'/mainboards'+'/'+folder+'/'+folder+'.png')))
+    create_btn(button_images[-1],count*4*100,100,device_page,str(path+'/mainboards'+'/'+folder))
+
+
+
+def device_page(event,folder_path):
+  global button_images
+  clear_page() 
+  button_images = []
+  subfolders = list(filter(lambda x: os.path.isdir(os.path.join(folder_path, x)), os.listdir(folder_path)))    
+  print('this folders found',subfolders)
+  for count,folder in enumerate(subfolders):
+    button_images.append( load_folder_image(250,250,str(folder_path+'/'+folder+'/'+folder+'.png')))
+    create_btn(button_images[-1],count*4*100,100,device_version_page,str(folder_path+'/'+folder))
+
+
+def device_version_page(event,folder_path):
   clear_page()
-  create_btn(bride_image,100,100,bride_page)
-
-
-
-def bride_page(event):
-  clear_page()
+  with open(str(folder_path+'/note.txt'), 'r') as version_spec:
+    notes = version_spec.read()
   
-  # time.sleep(0.5)
+  nt_box = create_note_box(notes)
+
+
+def upload_button(event,folder_path):
+  
+  
   upload_arduino_code('bride')
 
 
@@ -219,8 +255,8 @@ if __name__ == '__main__':
   page.place(x=-1,y=-1)
   
   message_box_handler()
-  
-  main_page(None)
+
+  main_page(None,None)
 
 
 
