@@ -83,8 +83,9 @@ def mainboard_page(event):
 
 def bride_page(event):
   clear_page()
-  page.create_text(400,250,fill="darkblue",text="Uploading")
-  threading.Thread(target=upload_arduino_code, args=('bride',)).start
+  
+  # time.sleep(0.5)
+  upload_arduino_code('bride')
 
 
 
@@ -97,7 +98,18 @@ def bride_page(event):
 
 
 
+def create_msg_box(image):
+  message_box = Canvas(tk,width=screen_width/3, height=screen_height/3)
+  message_box.pack()
+  message_box.place(x=(screen_width/2-screen_width/6),y=(screen_height/2-screen_height/6))
+  message_box.create_image(0, 0,anchor=NW, image=image)
+  return message_box
 
+def _destroy_msgbox(msg_box):
+  msg_box.destroy()
+
+def destroy_msgbox(msg_box,time):
+  threading.Timer(time, _destroy_msgbox,args=(msg_box,)).start()
 
 
 
@@ -105,14 +117,31 @@ def bride_page(event):
 
 def upload_arduino_code(machine):
   try:
+    
     port = [tuple(p) for p in list(serial.tools.list_ports.comports())][0][0]
+    
     if(port.find('AMA') != -1):
-      raise Exception('no port found')
+      raise 'no port found'
+    
+    # show uploading message
+    message_box = create_msg_box(uploading_image)
+    
     os.system('/usr/share/arduino/hardware/tools/avrdude -C/usr/share/arduino/hardware/tools/avrdude.conf -v -v -v -v -patmega2560 -cwiring -P'
       +str(port)+' -b115200 -D -Uflash:w:'
       +str(hex_address[machine])+':i')
+    
+    # destrou uploading message
+    destroy_msgbox(message_box,0)
+
+    message_box = create_msg_box(uploaddone_image)
+    destroy_msgbox(message_box,3)    
+  
   except Exception as e:
     print('error in upload arduino',e)
+
+    message_box = create_msg_box(upfail_image)
+    destroy_msgbox(message_box,3) 
+  
 
   main_page(None)
 
@@ -141,6 +170,16 @@ if __name__ == '__main__':
 
   background_image = ImageTk.PhotoImage(Image.open(str(path + '/images/background.png'))
     .resize((screen_width, screen_height),Image.ANTIALIAS))
+
+  upfail_image = ImageTk.PhotoImage(Image.open(str(path + '/images/uploadfail.png'))
+    .resize((screen_width/3, screen_height/3),Image.ANTIALIAS))  
+
+  uploaddone_image = ImageTk.PhotoImage(Image.open(str(path + '/images/uploaddone.png'))
+    .resize((screen_width/3, screen_height/3),Image.ANTIALIAS))
+
+  
+  uploading_image = ImageTk.PhotoImage(Image.open(str(path + '/images/uploading.png'))
+    .resize((screen_width/3, screen_height/3),Image.ANTIALIAS))
 
   load_all_images(250,250)
 
