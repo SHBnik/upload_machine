@@ -112,7 +112,10 @@ def destroy_msgbox(msg_box,time):
   threading.Timer(time, _destroy_msgbox,args=(msg_box,)).start()
 
 
-
+def upload_cmd(port,machine):
+  os.system('/usr/share/arduino/hardware/tools/avrdude -C/usr/share/arduino/hardware/tools/avrdude.conf -v -v -v -v -patmega2560 -cwiring -P'
+  +str(port)+' -b115200 -D -Uflash:w:'
+  +str(hex_address[machine])+':i')
 
 
 def upload_arduino_code(machine):
@@ -126,12 +129,11 @@ def upload_arduino_code(machine):
     # show uploading message
     message_box = create_msg_box(uploading_image)
     
-    os.system('/usr/share/arduino/hardware/tools/avrdude -C/usr/share/arduino/hardware/tools/avrdude.conf -v -v -v -v -patmega2560 -cwiring -P'
-      +str(port)+' -b115200 -D -Uflash:w:'
-      +str(hex_address[machine])+':i')
+    x = threading.Thread(target=upload_cmd, args=(port,machine,))
+    x.start()
     
     # destrou uploading message
-    destroy_msgbox(message_box,0)
+    # destroy_msgbox(message_box,0)
 
     message_box = create_msg_box(uploaddone_image)
     destroy_msgbox(message_box,3)    
