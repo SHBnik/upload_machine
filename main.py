@@ -143,7 +143,7 @@ class Ui(QtWidgets.QMainWindow):
         elif name == "arduino_pb":
             self.find_usb()
             if self.root ==  "bride_pb":
-                src = os.path.join(base,"bride/arduino/frimware.bin")
+                src = os.path.join(base,"bride/arduino/firmware.bin")
                 copyfile(src, '/media/usb')
             
             if self.root == "kaizen_pb":
