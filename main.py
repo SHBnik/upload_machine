@@ -82,7 +82,7 @@ class Ui(QtWidgets.QMainWindow):
 
         call(['sudo', 'mkdosfs', '-F 32','-I','/dev/sda1'])
 
-        call(['sudo', 'mount','-o rw,nosuid,nodev,uid=1000,gid=1000,shortname=mixed,dmask=0077,utf8=1,showexec,flush,uhelper=udisks2', '/dev/sda1', usb_base_dir])
+        call(['sudo', 'mount', '/dev/sda1', usb_base_dir])
         print('done mounting and formating')
 
 
