@@ -87,10 +87,10 @@ class Ui(QtWidgets.QMainWindow):
 
 
     def cp_dir(self,source, target):
-        call(['cp', '-a', source, target]) # Linux
+        call(['sudo','cp', '-a', source, target]) # Linux
     
     def cp_file(self,source, target):
-        call(['cp', source, target]) # Linux
+        call(['sudo','cp', source, target]) # Linux
 
 
     def disable_other(self):
