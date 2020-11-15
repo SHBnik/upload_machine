@@ -46,13 +46,13 @@ class Ui(QtWidgets.QMainWindow):
     def upload_cmd(self,port,code_address):
         #global upload_busy
         
-        upload_busy = True
+        # upload_busy = True
 
-        os.system('avrdude -v -v -v -v -p atmega2560 -cwiring -P'
+        os.system('avrdude -p atmega2560 -cwiring -P'
         +str(port)+' -b115200 -D -Uflash:w:'
         +str(code_address))
         
-        upload_busy = False
+        # upload_busy = False
 
 
     def upload_arduino_code(self,machine):
@@ -63,8 +63,8 @@ class Ui(QtWidgets.QMainWindow):
             if(port.find('AMA') != -1):
                 raise 'no port found'
             
-            
-            threading.Thread(target=self.upload_cmd, args=(port,machine,)).start()
+            self.upload_cmd(port,machine) # polling
+            # threading.Thread(target=self.upload_cmd, args=(port,machine,)).start()
             
         
         except Exception as e:
@@ -82,12 +82,12 @@ class Ui(QtWidgets.QMainWindow):
 
         call(['sudo', 'mkdosfs', '-F 32','-I','/dev/sda1'])
 
-        call(['sudo', 'mount', '-o uid=1000,gid=1000', '/dev/sda1', usb_base_dir])
+        call(['sudo', 'mount', '/dev/sda1', usb_base_dir])
         print('done mounting and formating')
 
 
     def cp_dir(self,source, target):
-        call(['sudo','cp', '-a', source, target]) # Linux
+        call(['sudo','rsync ', '-a', source, target]) # Linux
     
     def cp_file(self,source, target):
         call(['sudo','cp', source, target]) # Linux
@@ -161,10 +161,10 @@ class Ui(QtWidgets.QMainWindow):
         elif name == "lcd_pb":
             self.find_usb()
             if self.root ==  "bride_pb":
-                self.cp_dir(os.path.join(base,"bride/lcd"), '/media/usb')
+                self.cp_dir(os.path.join(base,"bride/lcd",'.'), '/media/usb')
                 
             if self.root ==  "generous_pb":
-                self.cp_dir(os.path.join(base,"generous/lcd"), '/media/usb')
+                self.cp_dir(os.path.join(base,"generous/lcd",'.'), '/media/usb')
 
         elif name == "raspberrypi_pb":
             self.find_usb()
