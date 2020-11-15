@@ -64,7 +64,7 @@ class Ui(QtWidgets.QMainWindow):
                 raise 'no port found'
             
             
-            threading.Thread(target=upload_cmd, args=(port,machine,)).start()
+            threading.Thread(target=self.upload_cmd, args=(port,machine,)).start()
             
         
         except Exception as e:
@@ -82,7 +82,7 @@ class Ui(QtWidgets.QMainWindow):
 
         call(['sudo', 'mkdosfs', '-F 32','-I','/dev/sda1'])
 
-        call(['sudo', 'mount', '/dev/sda1', usb_base_dir])
+        call(['sudo', 'mount', '-o uid=1000,gid=1000', '/dev/sda1', usb_base_dir])
         print('done mounting and formating')
 
 
