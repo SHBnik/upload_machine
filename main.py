@@ -42,9 +42,9 @@ class Ui(QtWidgets.QMainWindow):
 
 
 
-    upload_busy = False
+    #upload_busy = False
     def upload_cmd(self,port,code_address):
-        global upload_busy
+        #global upload_busy
         
         upload_busy = True
 
@@ -146,11 +146,11 @@ class Ui(QtWidgets.QMainWindow):
             self.find_usb()
             if self.root ==  "bride_pb":
                 src = os.path.join(base,"bride/arduino/firmware.bin")
-                cp_file(src, os.path.join(base, '/media/usb'))
+                self.cp_file(src, os.path.join(base, '/media/usb'))
             
             if self.root == "kaizen_pb":
                 src = os.path.join(base,"kaizen/arduino/Robin_nano35.bin")
-                cp_file(src, os.path.join(base, '/media/usb'))
+                self.cp_file(src, os.path.join(base, '/media/usb'))
 
             if self.root == "generous_pb":
                 self.upload_arduino_code(os.path.join(base,"generous/arduino/generous.hex"))
