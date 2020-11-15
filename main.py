@@ -5,7 +5,6 @@ import sys
 import os
 import serial.tools.list_ports
 import threading
-from shutil import copyfile
 from subprocess import call
 
 
@@ -89,6 +88,9 @@ class Ui(QtWidgets.QMainWindow):
 
     def cp_dir(self,source, target):
         call(['cp', '-a', source, target]) # Linux
+    
+    def cp_file(self,source, target):
+        call(['cp', source, target]) # Linux
 
 
     def disable_other(self):
@@ -144,11 +146,11 @@ class Ui(QtWidgets.QMainWindow):
             self.find_usb()
             if self.root ==  "bride_pb":
                 src = os.path.join(base,"bride/arduino/firmware.bin")
-                copyfile(src, '/media/usb')
+                cp_file(src, os.path.join(base, '/media/usb'))
             
             if self.root == "kaizen_pb":
                 src = os.path.join(base,"kaizen/arduino/Robin_nano35.bin")
-                copyfile(src, '/media/usb')
+                cp_file(src, os.path.join(base, '/media/usb'))
 
             if self.root == "generous_pb":
                 self.upload_arduino_code(os.path.join(base,"generous/arduino/generous.hex"))
@@ -159,10 +161,10 @@ class Ui(QtWidgets.QMainWindow):
         elif name == "lcd_pb":
             self.find_usb()
             if self.root ==  "bride_pb":
-                cp_dir(os.path.join(base,"bride/lcd"), '/media/usb')
+                self.cp_dir(os.path.join(base,"bride/lcd"), '/media/usb')
                 
             if self.root ==  "generous_pb":
-                cp_dir(os.path.join(base,"generous/lcd"), '/media/usb')
+                self.cp_dir(os.path.join(base,"generous/lcd"), '/media/usb')
 
         elif name == "raspberrypi_pb":
             self.find_usb()
